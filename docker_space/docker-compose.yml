@@ -1,0 +1,65 @@
+version: '3.9'
+services:
+
+  # PHP Service
+  todo-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: todo
+    container_name: app
+    restart: unless-stopped
+    tty: true
+    environment:
+      SERVICE_NAME: app-service
+      SERVICE_TAGS: dev
+    working_dir: /var/www
+    volumes:
+      - ../:/var/www
+      - ./php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    networks:
+      - app-network
+
+  # Nginx Service
+  nginx:
+    image: nginx:1.19
+    container_name: nginx
+    restart: unless-stopped
+    tty: true
+    ports:
+      - 8001:81
+      - 8002:82
+      - 8003:83
+      - 8004:84
+    volumes:
+      - ../:/var/www
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
+    networks:
+      - app-network
+
+  # PostgreSQL Service
+  mysql:
+    image: mysql
+    container_name: mysql
+    restart: unless-stopped
+    tty: true
+    ports:
+      - 3600:3600
+    environment:
+      - POSTGRES_DB=todo_db
+      - POSTGRES_USER=todo_db_admin
+      - POSTGRES_PASSWORD=pa55word
+    volumes:
+      - ./db/mysql/data:/var/lib/mysql/data
+    networks:
+      - app-network
+
+# Docker Networks
+networks:
+  app-network:
+    external:
+      name: app-pre-existing-network
+#Volumes
+volumes:
+  dbdata:
+    driver: local
