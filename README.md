@@ -2,4 +2,4 @@
 
 2. run `cp .env .env.example`
 
-3. run `` to start application
+3. run `php artisan serve` to start application
